@@ -41,7 +41,7 @@ const Navigator = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-                {/* <Stack.Screen name="Splash" component={SplashScreen} /> */}
+                <Stack.Screen name="Splash" component={SplashScreen} />
                 <Stack.Screen name="HomeTabs" component={HomeTabs} />
                 <Stack.Screen name="Detail" component={Detail} />
                 <Stack.Screen name="Video" component={VideoScreen} />

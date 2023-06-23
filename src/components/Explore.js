@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useSelector } from "react-redux";
 import { CircularRating, Separator } from '../components'
 import { Display } from '../utiles';
-
+import { FlashList } from '@shopify/flash-list'
 
 const Explore = ({ mediaType }) => {
     const navigation = useNavigation();
@@ -15,6 +15,8 @@ const Explore = ({ mediaType }) => {
     const [data, setData] = useState(null);
     const [pageNum, setPageNum] = useState(1);
     const [loading, setLoading] = useState(false);
+
+    const [loading2, setLoading2] = useState(false);
 
     const fetchInitialData = () => {
         setLoading(true);
@@ -26,6 +28,7 @@ const Explore = ({ mediaType }) => {
     };
 
     const fetchNextPageData = () => {
+        setLoading2(true);
         fetchDataFromApi(`/discover/${mediaType}?page=${pageNum}`).then(
             (res) => {
                 if (data?.results) {
@@ -37,8 +40,11 @@ const Explore = ({ mediaType }) => {
                     setData(res);
                 }
                 setPageNum((prev) => prev + 1);
+                setLoading2(false);
             }
-        );
+        ).catch((error) => {
+            setLoading2(false);
+        });
     };
     useEffect(() => {
         fetchInitialData();
@@ -49,26 +55,41 @@ const Explore = ({ mediaType }) => {
     return (
         <View>
             {
-                loading && <ActivityIndicator size={50} color={Colors.ORANGE} />
+                loading && <ActivityIndicator size={60} color={Colors.ORANGE} />
             }
             {
                 !loading && (
                     <>
                         {
-                            data?.results?.length > 0 ? (
+                            <ScrollView horizontal
+                                showsHorizontalScrollIndicator={false}
+                                directionalLockEnabled={true}
+                                alwaysBounceVertical={false}
+                                contentContainerStyle={{
+                                    flex:1
+                                }}
+                            >
 
-                                <ScrollView horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    directionalLockEnabled={true}
-                                    alwaysBounceVertical={false}
-                                >
-                                    <View>
-                                        <FlatList
+                                {
+                                    data?.results?.length > 0 && (
+                                        <FlashList
+                                            data={data?.results}
+                                            keyExtractor={item => item.id}
+                                            onEndReached={() => {
+                                                fetchNextPageData();
+                                            }}
+                                            onEndReachedThreshold={1}
                                             ListHeaderComponent={() => <Text style={styles.Texttitle}>
                                                 {
                                                     mediaType === "tv" ? "Explore TV Shows" : "Explore Movies"
                                                 }
                                             </Text>}
+                                            ListFooterComponent={() => <>
+                                                {
+                                                    loading2 && <ActivityIndicator style={{marginBottom:Display.setHight(8)}} size={60} color={Colors.ORANGE} />
+                                                }
+                                            </>}
+                                            estimatedItemSize={200}
                                             contentContainerStyle={{
                                                 width: Display.setWidth(100),
                                                 alignItems: 'center'
@@ -76,8 +97,7 @@ const Explore = ({ mediaType }) => {
                                             numColumns={2}
                                             showsVerticalScrollIndicator={false}
                                             showsHorizontalScrollIndicator={false}
-                                            data={data?.results}
-                                            keyExtractor={item => item.id}
+
                                             renderItem={({ item }) => {
                                                 return (
                                                     <TouchableOpacity
@@ -103,13 +123,17 @@ const Explore = ({ mediaType }) => {
                                                 )
                                             }}
                                         />
-                                    </View>
-                                </ScrollView>
-                            ) : (null)
+                                    )
+                                }
+
+                            </ScrollView>
+
+
                         }
                     </>
                 )
             }
+
         </View>
     )
 }
