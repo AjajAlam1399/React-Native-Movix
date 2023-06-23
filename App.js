@@ -1,20 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import Navigator from './src/navigators/Navigator';
+import { Provider } from 'react-redux'
+import Store from './src/redux/Store';
+
+import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold, Poppins_600SemiBold, Poppins_800ExtraBold, Poppins_900Black,Poppins_400Regular_Italic } from '@expo-google-fonts/poppins'
+
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  // calling Fonts  (Popins)
+  let [fontsLoaded] = useFonts({
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold, Poppins_800ExtraBold, Poppins_900Black,Poppins_400Regular_Italic
+})
+if (!fontsLoaded) {
+    return null;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  return (
+    <>
+      <Provider store={Store}>
+        <Navigator />
+      </Provider>
+    </>
+  );
+}
